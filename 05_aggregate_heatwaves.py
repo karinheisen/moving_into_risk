@@ -25,7 +25,7 @@ import rasterio
 from shapely.geometry import box, MultiPolygon
 from exactextract import exact_extract
 
-# ---- settings ----
+# ---------------------- Config ----------------------
 INPUT_FILES = {
     "gswp3-w5e5_historical": "ISIMIP3_forKarinHeisen/hwmid-humidex_gswp3-w5e5_historical_heatwavedarea_global_annual_population_1901_2016.nc",
     "gswp3-w5e5_picontrol":  "ISIMIP3_forKarinHeisen/hwmid-humidex_gswp3-w5e5_picontrol_heatwavedarea_global_annual_population_1901_2016.nc",
@@ -41,7 +41,7 @@ VAR_NAME        = "exposure"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-# ----- helpers ----
+# ---------------------- Helpers ----------------------
 def to_multipolygon(geom):
     """Return a MultiPolygon with only polygonal parts; None if no polygons."""
     if geom is None or geom.is_empty:
@@ -178,7 +178,7 @@ def aggregate_one(nc_path: str, tag: str, admin: gpd.GeoDataFrame):
     out_path = os.path.join(OUTPUT_DIR, f"heatwave_population_mixed_fractional_{tag}.csv")
     res.to_csv(out_path, index=False)
 
-
+# ---------------------- Main ----------------------
 def main():
     admin = load_mixed(MIXED_GPKG_PATH, MIXED_LAYER)
     for tag, path in INPUT_FILES.items():
