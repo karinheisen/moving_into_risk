@@ -23,7 +23,7 @@ import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ---- settings ----
+# ---------------------- Config ----------------------
 ADM1_GPKG = "polyg_adm1_dataNetMgr.gpkg"  # Niva table (contains ADM1 rows; uses ADM0 when no ADM1 exists)
 ISO_COL   = "iso3"      # country code
 ADM1_ID   = "GID_1"     # admin-1 id (fallbacks below)
@@ -42,7 +42,7 @@ OUT_PLOT = OUTDIR / f"map_rule_mean_only_{int(CUT_MEAN)}_new.png"
 OUT_CSV  = OUTDIR / f"countries_collapsed_mean_only_{int(CUT_MEAN)}_new.csv"
 
 
-# ----- helpers ----
+# ---------------------- Helpers ----------------------
 def coerce_adm1_id(df: pd.DataFrame, target: str, candidates=("ADM1_PCODE", "ADM1_CODE", "ID_1", "NAME_1")) -> str:
     if target in df.columns:
         df[target] = df[target].astype(str)
@@ -105,7 +105,7 @@ def reason_string(row: pd.Series) -> str:
     return "; ".join(reasons)
 
 
-# ----- main ----
+# ---------------------- Main ----------------------
 def main():
     g = gpd.read_file(ADM1_GPKG).to_crs(4326)
 
