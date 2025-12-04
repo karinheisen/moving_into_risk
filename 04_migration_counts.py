@@ -20,27 +20,25 @@ import os
 import sys
 import pandas as pd
 
-# ----------------- CONFIG -----------------
+# ---------------------- Config ----------------------
 MIGRATION_CSV = "mixed_outputs/migration_mixed_rate_2000_2016_new.csv"
 WORLDPOP_CSV  = "mixed_outputs/worldpop_mixed_2000_2016_new.csv"
 OUTPUT_CSV    = "mixed_outputs/migration_counts_mixed_2000_2016_new.csv"
 
 ID_COL           = "mixed_id"
 YEAR_COL         = "year"
-RATE_COL         = "netMgr_rate_per_1000"   # per-1000 rate column in migration file
+RATE_COL         = "netMgr_rate_per_1000"
 WPOP_VALUE_COL   = "worldpop_sum"           # persons per mixed_id-year
 POP_IS_THOUSANDS = False
 
-YEAR_MIN, YEAR_MAX = 2000, 2016           # analysis window
+YEAR_MIN, YEAR_MAX = 2000, 2016
 
-
-# --------------- HELPERS ------------------
+# ---------------------- Helpers ----------------------
 def _to_thousands(series: pd.Series) -> pd.Series:
     """Convert population series to thousands if needed."""
     return series if POP_IS_THOUSANDS else series / 1000.0
 
-
-# ------------------- MAIN -----------------
+# ---------------------- Main ----------------------
 def main(mig_path=None, wpop_path=None, out_path=None):
     mig_path = mig_path or MIGRATION_CSV
     wpop_path = wpop_path or WORLDPOP_CSV
