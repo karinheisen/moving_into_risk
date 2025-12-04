@@ -5,7 +5,7 @@
 Aggregate wildfire population exposure to MIXED admin boundaries (fractional)
 
 - Uses exactextract fractional means ("mean") -> true partial-pixel, area-weighted means.
-- Operates on full (Multi)Polygons directly (no explode/recombine).
+- Operates on full (Multi)Polygons directly.
 - Standardizes rasters to (time, y, x), lon in [-180, 180], lat descending, CRS=EPSG:4326; respects nodata.
 - Repairs geometries and coerces to MultiPolygon; drops non-area types only if necessary.
 
@@ -29,7 +29,7 @@ import rasterio
 from shapely.geometry import box, MultiPolygon
 from exactextract import exact_extract
 
-# ---------------- settings ----------------
+# ---------------------- Config ----------------------
 INPUT_FILES = {
     "classic_gswp3-w5e5_historical": "ISIMIP3_forKarinHeisen/classic_gswp3-w5e5_historical_burntarea_global_annual_population_1901_2019.nc",
     "classic_gswp3-w5e5_picontrol":  "ISIMIP3_forKarinHeisen/classic_gswp3-w5e5_picontrol_burntarea_global_annual_population_1901_2019.nc",
@@ -44,7 +44,7 @@ NODATA          = -9999.0
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# --------------- helpers ------------------
+# ---------------------- Helpers ----------------------
 def to_multipolygon(geom):
     """Coerce geometry to MultiPolygon; drop non-area types."""
     if geom is None or geom.is_empty:
@@ -150,7 +150,7 @@ def build_year(time_coord: xr.DataArray, nc_path: str) -> list[int]:
     return [int(v) for v in vals]
 
 
-# --------------- core ---------------------
+# ---------------------- Core ----------------------
 def aggregate_one(nc_path: str, tag: str, admin: gpd.GeoDataFrame):
     ds = xr.open_dataset(nc_path, decode_times=True)
     da = std_spatial(ds[VAR_NAME])
@@ -197,7 +197,7 @@ def aggregate_one(nc_path: str, tag: str, admin: gpd.GeoDataFrame):
         index=False,
     )
 
-
+# ---------------------- Main ----------------------
 def main():
     admin = load_mixed(MIXED_GPKG_PATH, MIXED_LAYER)
     for tag, path in INPUT_FILES.items():
