@@ -27,7 +27,7 @@ import rasterio
 from shapely.geometry import box, MultiPolygon
 from exactextract import exact_extract
 
-# ---------------- settings ----------------
+# ---------------------- Config ----------------------
 INPUT_FILES = {
     "LPJmL_gswp3-w5e5_historical":      "ISIMIP3_forKarinHeisen/LPJmL_gswp3-w5e5_historical_cropfailedarea_global_annual_population_1901_2016.nc",
     "EPIC-IIASA_gswp3-w5e5_historical": "ISIMIP3_forKarinHeisen/EPIC-IIASA_gswp3-w5e5_historical_cropfailedarea_global_annual_population_1901_2016.nc",
@@ -41,7 +41,7 @@ NODATA          = -9999.0
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-# --------------- helpers ------------------
+# ---------------------- Helpers ----------------------
 def to_multipolygon(geom):
     """Coerce geometry to MultiPolygon; drop non-area types."""
     if geom is None or geom.is_empty:
@@ -157,7 +157,7 @@ def build_year(time_coord: xr.DataArray, nc_path: str) -> list[int]:
     return [int(v) for v in vals]
 
 
-# --------------- core ---------------------
+# ---------------------- Core ----------------------
 def aggregate_one(nc_path: str, tag: str, admin: gpd.GeoDataFrame):
     ds = xr.open_dataset(nc_path, decode_times=True)
     da = std_spatial(ds[VAR_NAME])
@@ -204,7 +204,7 @@ def aggregate_one(nc_path: str, tag: str, admin: gpd.GeoDataFrame):
         index=False,
     )
 
-
+# ---------------------- Main ----------------------
 def main():
     admin = load_mixed(MIXED_GPKG_PATH, MIXED_LAYER)
     for tag, path in INPUT_FILES.items():
