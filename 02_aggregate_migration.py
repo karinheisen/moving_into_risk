@@ -24,7 +24,7 @@ from typing import List
 import geopandas as gpd
 import pandas as pd
 
-
+# ---------------------- Helpers ----------------------
 def find_year_cols(cols: List[str], y0: int, y1: int) -> List[str]:
     pat = re.compile(r"^netMgr_(\d{4})$")
     return sorted(
@@ -71,14 +71,14 @@ def safe_concat(parts: List[pd.DataFrame], columns: List[str]) -> pd.DataFrame:
     parts = [p for p in parts if isinstance(p, pd.DataFrame) and not p.empty]
     return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=columns)
 
-
+# ---------------------- Main ----------------------
 def main() -> None:
     y0, y1 = 2000, 2016
     outdir = Path("mixed_outputs")
     outcsv = outdir / "migration_mixed_rate_2000_2016_new.csv"
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # --- Load mixed attributes
+    # Load mixed attributes
     mixed = gpd.read_file("admin_cutoff_outputs_mean_only/mixed_boundaries_new.gpkg", layer="mixed")
     if "geometry" in mixed.columns:
         mixed = mixed.drop(columns=["geometry"])
@@ -96,7 +96,7 @@ def main() -> None:
     mix1 = mixed[mixed["level"] == "admin1"].copy()
     mix0 = mixed[mixed["level"] == "admin0"].copy()
 
-    # --- Load ADM1 / ADM0 tables
+    # Load ADM1 / ADM0 tables
     adm1 = gpd.read_file("polyg_adm1_dataNetMgr.gpkg")
     if "geometry" in adm1.columns:
         adm1 = adm1.drop(columns=["geometry"])
@@ -109,7 +109,7 @@ def main() -> None:
     ycols0 = find_year_cols(list(adm0.columns), y0, y1)
     adm0_uni = dedupe_by_exact(adm0[["iso3"] + ycols0], "iso3", ycols0)
 
-    # --- A) admin1 rows: join by GID_1
+    # A) admin1 rows: join by GID_1
     a = pd.DataFrame(columns=["mixed_id", "year", "netMgr_rate_per_1000"])
     if not mix1.empty:
         mix1_j = mix1.dropna(subset=["GID_1"]).drop_duplicates(subset=["GID_1"], keep="first")
@@ -118,7 +118,7 @@ def main() -> None:
             ["mixed_id", "year", "netMgr_rate_per_1000"]
         ]
 
-    # --- B) admin0 rows: map by iso3
+    # B) admin0 rows: map by iso3
     b = pd.DataFrame(columns=["mixed_id", "year", "netMgr_rate_per_1000"])
     if not mix0.empty:
         iso_map = mix0[["iso3", "mixed_id"]].drop_duplicates()
@@ -127,7 +127,7 @@ def main() -> None:
             ["mixed_id", "year", "netMgr_rate_per_1000"]
         ]
 
-    # --- Combine and finalize ---
+    # Combine and finalize
     out = safe_concat([a, b], ["mixed_id", "year", "netMgr_rate_per_1000"])
     out = out.dropna(subset=["mixed_id", "year"]).copy()
     out["mixed_id"] = out["mixed_id"].astype(str)
